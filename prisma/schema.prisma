@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cancha {
+  nro_cancha       Int         @id @default(autoincrement())
+  descripcion      String      @db.VarChar(255)
+  costo_por_turno  Float       @db.Float
+  calle            String      @db.VarChar(255)
+  nro_calle        Int
+  horario_apertura DateTime    @db.Time(0)
+  horario_cierre   DateTime    @db.Time(0)
+  cod_zona         Int
+  cod_tipo         Int
+  tipo_cancha      tipo_cancha @relation(fields: [cod_tipo], references: [cod_tipo])// map: "fk_cancha_tipo"
+  zona             zona        @relation(fields: [cod_zona], references: [cod_zona])// map: "fk_cancha_zona"
+  reserva          reserva?
+
+  //@@index([cod_tipo], map: "fk_cancha_tipo")
+  //@@index([cod_zona], map: "fk_cancha_zona")
+
+}
+
+model reserva {
+  nro_reserva        Int      @default(autoincrement())
+  fecha_hora_turno   DateTime @db.DateTime(0)
+  fecha_hora_reserva DateTime @db.DateTime(0)
+  estado             String   @db.VarChar(255)
+  id_usuario         Int      @unique(map: "id_usuario_UNIQUE")
+  nro_cancha         Int      @unique(map: "nro_cancha_UNIQUE")
+  cancha             cancha   @relation(fields: [nro_cancha], references: [nro_cancha], map: "fk_reserva_cancha")
+  usuario            usuario  @relation(fields: [id_usuario], references: [id_usuario], map: "fk_reserva_usuario")
+
+  @@id([nro_reserva, fecha_hora_turno])
+}
+
+model tipo_cancha {
+  cod_tipo    Int      @id @default(autoincrement())
+  descripcion String   @db.VarChar(45)
+  cancha      cancha[]
+}
+
+model usuario {
+  id_usuario Int      @id @default(autoincrement())
+  dni        String   @unique(map: "dni_UNIQUE") @db.VarChar(45)
+  nombre     String   @db.VarChar(255)
+  apellido   String   @db.VarChar(255)
+  telefono   String   @unique(map: "telefono_UNIQUE") @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  email      String   @unique(map: "email_UNIQUE") @db.VarChar(255)
+  rol        String   @default("USUARIO") @db.VarChar(255)
+  reserva    reserva?
+}
+
+model zona {
+  cod_zona    Int      @id @default(autoincrement())
+  descripcion String   @db.VarChar(45)
+  cancha      cancha[]
+}
