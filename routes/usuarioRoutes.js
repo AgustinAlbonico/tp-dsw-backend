@@ -1,20 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const {loginView,
-    registerView,
-    registerUser,
-    loginUser,
-    logout
-    } = require('../controllers/loginController.js');
+const express = require('express')
+const router = express.Router()
 
-//get
-router.get('/login', loginView);
-router.get('/register', registerView);
-router.get('/logout', logout);
+const { authMiddleware } = require('../middlewares/authMiddleware')
 
+const {
+  loginUser,
+  registerUser,
+  validateEmail,
+  logoutUser,
+} = require('../controllers/authController')
 
-//post
-router.post('/register', registerUser)
+//Rutas
 router.post('/login', loginUser)
+router.post('/register', registerUser)
+router.put('/validate-email/:token', validateEmail)
+router.get('/logout', authMiddleware, logoutUser)
 
-module.exports= router;
+module.exports = router

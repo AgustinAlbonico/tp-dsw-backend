@@ -8,6 +8,10 @@ const {
   updateZona,
 } = require('../controllers/zonaController.js')
 
-con
+Router.get('/', getZonas)
+Router.get('/:id', getZona)
+Router.post('/', createZona)
+Router.put('/', updateZona)
+Router.delete('/:id', deleteZona)
 
-module.exports = router
+module.exports = Router

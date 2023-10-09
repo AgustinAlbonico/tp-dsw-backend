@@ -3,11 +3,7 @@ const tipoCanchaClient = new PrismaClient().tipo_cancha
 
 const getTipos = async (req, res) => {
   try {
-    const tipos = await tipoCanchaClient.findMany({
-      include: {
-        cancha: true,
-      },
-    })
+    const tipos = await tipoCanchaClient.findMany()
     return res.status(200).json(tipos)
   } catch (error) {
     throw new Error(error)

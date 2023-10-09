@@ -3,11 +3,7 @@ const zonaClient = new PrismaClient().zona
 
 const getZonas = async (req, res) => {
   try {
-    const zonas = await zonaClient.findMany({
-      include: {
-        cancha: true,
-      },
-    })
+    const zonas = await zonaClient.findMany()
     return res.status(200).json(zonas)
   } catch (error) {
     throw new Error(error)

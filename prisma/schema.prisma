@@ -17,13 +17,12 @@ model cancha {
   horario_cierre   DateTime    @db.Time(0)
   cod_zona         Int
   cod_tipo         Int
-  tipo_cancha      tipo_cancha @relation(fields: [cod_tipo], references: [cod_tipo])// map: "fk_cancha_tipo"
-  zona             zona        @relation(fields: [cod_zona], references: [cod_zona])// map: "fk_cancha_zona"
+  tipo_cancha      tipo_cancha @relation(fields: [cod_tipo], references: [cod_tipo], map: "fk_cancha_tipo")
+  zona             zona        @relation(fields: [cod_zona], references: [cod_zona], map: "fk_cancha_zona")
   reserva          reserva?
 
-  //@@index([cod_tipo], map: "fk_cancha_tipo")
-  //@@index([cod_zona], map: "fk_cancha_zona")
-
+  @@index([cod_tipo], map: "fk_cancha_tipo")
+  @@index([cod_zona], map: "fk_cancha_zona")
 }
 
 model reserva {
@@ -54,6 +53,8 @@ model usuario {
   password   String   @db.VarChar(255)
   email      String   @unique(map: "email_UNIQUE") @db.VarChar(255)
   rol        String   @default("USUARIO") @db.VarChar(255)
+  emailtoken String   @unique(map: "emailtoken_UNIQUE") @db.VarChar(255)
+  verificado Boolean  @default(false)
   reserva    reserva?
 }
 
