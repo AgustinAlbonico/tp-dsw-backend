@@ -17,7 +17,12 @@ app.use(bodyParser.json())
 //Middleware para el uso de cookies
 app.use(cookieParser())
 
-app.use(cors())
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+)
 app.use(morgan('dev'))
 
 //RUTAS

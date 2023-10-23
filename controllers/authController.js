@@ -23,12 +23,15 @@ const loginUser = async (req, res) => {
     //Comparo password del user y la ingresada
     const coinciden = await comparePasswords(password, user.password)
 
+    console.log(user)
+
     if (coinciden && user.verificado) {
-      console.log('asd')
       const token = generateToken(user.id_usuario, user.email)
-      console.log(token)
       res
-        .cookie('access_token', token, { httpOnly: true })
+        .cookie('access_token', token, {
+          httpOnly: true,
+          secure: false,
+        })
         .json({ message: 'Usuario logueado con exito', user })
     } else if (!user.verificado) {
       res.status(401).json({ message: 'Usuario no verificado' })
@@ -43,6 +46,7 @@ const loginUser = async (req, res) => {
 //Register user
 const registerUser = async (req, res) => {
   let { email, password } = req.body
+  console.log(req.body)
   try {
     //Valido que el usuario no exista
     let findUser = await userClient.findUnique({
@@ -62,13 +66,17 @@ const registerUser = async (req, res) => {
 
     let newUser = { ...req.body, emailtoken: hashedToken }
 
+    newUser.fecha_nacimiento = new Date()
+
+    console.log(newUser)
+
     //Creo el usuario
     let savedUser = await userClient.create({
       data: newUser,
     })
 
     //Envio mail con TOKEN de confirmacion de cuenta
-    const resetUrl = `Hola <h2>${savedUser.apellido}, ${savedUser.nombre}!</h2> <br> Usa este link para confirmar tu cuenta:<a href='http://localhost:3000/api/user/validate-email/${token}'>Haz click aqui!</a>`
+    const resetUrl = `Hola <h2>${savedUser.apellido}, ${savedUser.nombre}!</h2> <br> Usa este link para confirmar tu cuenta:<a href='http://localhost:3000/user/verify/${token}'>Haz click aqui!</a>`
     const data = {
       to: email,
       from: '"Link para confirmar tu cuenta! " <asd@example.com>',
@@ -84,6 +92,7 @@ const registerUser = async (req, res) => {
       savedUser,
     })
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: error })
   }
 }
@@ -111,4 +120,42 @@ const logoutUser = (req, res) => {}
 //Update user information
 const updateUserInfo = async (req, res) => {}
 
-module.exports = { loginUser, registerUser, validateEmail, logoutUser }
+//
+const forgotPassword = async (req, res) => {
+  const { email } = req.body
+  console.log(email)
+  try {
+    const user = await userClient.findFirst({
+      where: {
+        email,
+      },
+    })
+
+    if (!user)
+      res.status(404).json({
+        message: 'No se ha encontrado ningun usuario con esa direccion email',
+      })
+
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor' })
+  }
+}
+
+const getUsers = async (req, res) => {
+  try {
+    const usuarios = await userClient.findMany()
+    res.status(200).json(usuarios)
+  } catch (error) {
+    res.status(500).json({ message: error })
+  }
+}
+
+module.exports = {
+  loginUser,
+  registerUser,
+  validateEmail,
+  logoutUser,
+  forgotPassword,
+  getUsers,
+}
