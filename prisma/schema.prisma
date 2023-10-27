@@ -33,12 +33,12 @@ model reserva {
   estado             String   @db.VarChar(255)
   id_usuario         Int
   nro_cancha         Int
-  cancha             cancha   @relation(fields: [nro_cancha], references: [nro_cancha], onDelete: Cascade, map: "fk_reserva_cancha")
-  usuario            usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "fk_reserva_usuario")
+  cancha             cancha   @relation(fields: [nro_cancha], references: [nro_cancha], onDelete: NoAction, onUpdate: NoAction, map: "fk_reserva_cancha")
+  usuario            usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_reserva_usuario")
 
   @@id([fecha_turno, nro_cancha, hora_turno])
   @@index([id_usuario], map: "fk_reserva_usuario_idx")
-  @@index([nro_cancha], map: "fk_reserva_cancha")
+  @@index([nro_cancha], map: "fk_reserva_cancha_idx")
 }
 
 model tipo_cancha {
@@ -49,16 +49,15 @@ model tipo_cancha {
 
 model usuario {
   id_usuario       Int       @id @default(autoincrement())
-  dni              String    @unique(map: "dni_UNIQUE") @db.VarChar(45)
   nombre           String    @db.VarChar(255)
   apellido         String    @db.VarChar(255)
   telefono         String    @unique(map: "telefono_UNIQUE") @db.VarChar(255)
   password         String    @db.VarChar(255)
   email            String    @unique(map: "email_UNIQUE") @db.VarChar(255)
   rol              String    @default("USUARIO") @db.VarChar(255)
-  emailtoken       String?   @unique(map: "emailtoken_UNIQUE") @db.VarChar(255)
-  fecha_nacimiento DateTime  @db.Date
+  emailtoken       String    @unique(map: "emailtoken_UNIQUE") @db.VarChar(255)
   verificado       Boolean   @default(false)
+  fecha_nacimiento DateTime  @db.Date
   reserva          reserva[]
 }
 

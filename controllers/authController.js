@@ -23,8 +23,6 @@ const loginUser = async (req, res) => {
     //Comparo password del user y la ingresada
     const coinciden = await comparePasswords(password, user.password)
 
-    console.log(user)
-
     if (coinciden && user.verificado) {
       const token = generateToken(user.id_usuario, user.email)
       res
@@ -39,14 +37,14 @@ const loginUser = async (req, res) => {
       res.status(401).json({ message: 'Contraseña incorrecta' })
     }
   } catch (error) {
+    console.log(error)
     res.status(500).json(error)
   }
 }
 
 //Register user
 const registerUser = async (req, res) => {
-  let { email, password } = req.body
-  console.log(req.body)
+  let { email, password, telefono } = req.body
   try {
     //Valido que el usuario no exista
     let findUser = await userClient.findUnique({
@@ -55,8 +53,9 @@ const registerUser = async (req, res) => {
       },
     })
     if (findUser) {
-      res.status(409).json({
-        message: 'Ya existe un usuario asociado a ese email!',
+      return res.status(200).json({
+        message: 'Ya existe un usuario asociado a ese email o telefono!',
+        error: true,
       })
     }
 
@@ -66,9 +65,9 @@ const registerUser = async (req, res) => {
 
     let newUser = { ...req.body, emailtoken: hashedToken }
 
-    newUser.fecha_nacimiento = new Date()
-
     console.log(newUser)
+
+    newUser.fecha_nacimiento = new Date()
 
     //Creo el usuario
     let savedUser = await userClient.create({
@@ -76,7 +75,7 @@ const registerUser = async (req, res) => {
     })
 
     //Envio mail con TOKEN de confirmacion de cuenta
-    const resetUrl = `Hola <h2>${savedUser.apellido}, ${savedUser.nombre}!</h2> <br> Usa este link para confirmar tu cuenta:<a href='http://localhost:3000/user/verify/${token}'>Haz click aqui!</a>`
+    const resetUrl = `Hola <h2>${savedUser.apellido}, ${savedUser.nombre}!</h2> <br> Usa este link para confirmar tu cuenta: <a href='http://localhost:5173/verify/${token}'>Haz click aqui!</a>`
     const data = {
       to: email,
       from: '"Link para confirmar tu cuenta! " <asd@example.com>',
@@ -102,6 +101,7 @@ const validateEmail = async (req, res) => {
   const token = req.params.token
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
   try {
+    console.log('Hashedtoken: ' + hashedToken)
     const user = await userClient.update({
       where: { emailtoken: hashedToken },
       data: { verificado: true, emailtoken: '' },
@@ -110,7 +110,7 @@ const validateEmail = async (req, res) => {
       res.status(404).json({ message: 'No se ha encontrado al usuario!' })
     res.status(200).json({ message: 'Usuario verificado con exito', user })
   } catch (error) {
-    res.status(500).json({ message: error })
+    res.status(200).json({ message: 'Error al verificar la cuenta' })
   }
 }
 
