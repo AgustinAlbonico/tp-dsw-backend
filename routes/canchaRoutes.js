@@ -8,9 +8,13 @@ const {
   updateCancha,
   getCanchasDisponibles,
 } = require('../controllers/canchaController')
+const { authMiddleware } = require('../middlewares/authMiddleware')
+const {
+  verificarReservasActivas,
+} = require('../middlewares/verificarReservasActivasMiddleware')
 
 //Router.get('/', getCanchas)
 Router.get('/:id', getCancha)
-Router.get('/', getCanchasDisponibles)
+Router.get('/', authMiddleware, getCanchasDisponibles)
 
 module.exports = Router

@@ -101,15 +101,16 @@ const validateEmail = async (req, res) => {
   const token = req.params.token
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
   try {
-    console.log('Hashedtoken: ' + hashedToken)
-    const user = await userClient.update({
+    const user = await userClient.updateMany({
       where: { emailtoken: hashedToken },
       data: { verificado: true, emailtoken: '' },
     })
+
     if (!user)
       res.status(404).json({ message: 'No se ha encontrado al usuario!' })
     res.status(200).json({ message: 'Usuario verificado con exito', user })
   } catch (error) {
+    console.log(error)
     res.status(200).json({ message: 'Error al verificar la cuenta' })
   }
 }
