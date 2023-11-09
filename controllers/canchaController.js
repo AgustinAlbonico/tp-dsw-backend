@@ -19,7 +19,11 @@ const getCanchas = async (req, res) => {
 }
 
 const getCanchasDisponibles = async (req, res) => {
-  const { zona, tipoCancha, fecha } = req.query
+  const { zona, tipoCancha, fecha, page } = req.query
+
+  const limit = 4
+  let pagina = parseInt(page) ? parseInt(page) : 1
+  const skip = (pagina - 1) * limit
 
   let cod_zona = parseInt(zona)
   let cod_tipo = parseInt(tipoCancha)
@@ -32,6 +36,8 @@ const getCanchasDisponibles = async (req, res) => {
         cod_zona,
         cod_tipo,
       },
+      take: limit,
+      skip,
       include: {
         reserva: { where: { fecha_turno: fechaFormateada } },
       },

@@ -18,6 +18,32 @@ const getReservasPorFecha = async (req, res) => {
   }
 }
 
+const getReservasDelUsuario = async (req, res) => {
+  const { page } = req.query
+  const { id_usuario } = req.user
+
+  const limit = 10
+  let pagina = parseInt(page) ? parseInt(page) : 1
+  const skip = (pagina - 1) * limit
+
+  try {
+    const reservas = await reservaClient.findMany({
+      take: limit,
+      skip,
+      where: {
+        id_usuario,
+      },
+      include: {
+        cancha: true,
+      },
+    })
+    return res.status(200).json(reservas)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json(error)
+  }
+}
+
 const verificarReservasActivas = async () => {
   const { id_usuario } = req.user
 
@@ -72,6 +98,7 @@ const reservarCancha = async (req, res) => {
 
 module.exports = {
   getReservasPorFecha,
+  getReservasDelUsuario,
   reservarCancha,
   verificarReservasActivas,
 }

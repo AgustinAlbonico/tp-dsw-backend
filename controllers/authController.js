@@ -47,9 +47,9 @@ const registerUser = async (req, res) => {
   let { email, password, telefono } = req.body
   try {
     //Valido que el usuario no exista
-    let findUser = await userClient.findUnique({
+    let findUser = await userClient.findFirst({
       where: {
-        email,
+        OR: [{ email }, { telefono }],
       },
     })
     if (findUser) {
@@ -106,12 +106,16 @@ const validateEmail = async (req, res) => {
       data: { verificado: true, emailtoken: '' },
     })
 
-    if (!user)
-      res.status(404).json({ message: 'No se ha encontrado al usuario!' })
-    res.status(200).json({ message: 'Usuario verificado con exito', user })
+    if (user.count === 0)
+      return res
+        .status(404)
+        .json({ message: 'No se ha encontrado al usuario!' })
+    return res
+      .status(200)
+      .json({ message: 'Usuario verificado con exito', user })
   } catch (error) {
     console.log(error)
-    res.status(200).json({ message: 'Error al verificar la cuenta' })
+    return res.status(500).json({ message: 'Error al verificar la cuenta' })
   }
 }
 
