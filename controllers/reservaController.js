@@ -68,6 +68,8 @@ const reservarCancha = async (req, res) => {
   const { id_usuario } = req.user
   const datosReserva = { ...req.body, id_usuario }
 
+  console.log(datosReserva)
+
   console.log(req.excede)
 
   //Cambio el tipo de dato de la fecha_turno
@@ -86,12 +88,13 @@ const reservarCancha = async (req, res) => {
   datosReserva.hora_turno = generoHoraTurno(datosReserva.hora_turno)
 
   try {
-    const reserva = await reservaClient.create({
+    const reserva = await reservaClient.createMany({
       data: datosReserva,
     })
 
     return res.status(200).json(reserva)
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: 'Error al registrar la reserva' })
   }
 }

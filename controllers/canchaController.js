@@ -25,9 +25,11 @@ const getCanchasDisponibles = async (req, res) => {
   let pagina = parseInt(page) ? parseInt(page) : 1
   const skip = (pagina - 1) * limit
 
+  console.log(page)
+
   let cod_zona = parseInt(zona)
   let cod_tipo = parseInt(tipoCancha)
-  let fechaFormateada = new Date(fecha)
+  //let fechaFormateada = new Date(fecha)
 
   try {
     //Traigo las canchas para un tipo y una zona
@@ -39,7 +41,7 @@ const getCanchasDisponibles = async (req, res) => {
       take: limit,
       skip,
       include: {
-        reserva: { where: { fecha_turno: fechaFormateada } },
+        reserva: true,
       },
     })
 
@@ -114,6 +116,8 @@ const getCanchasDisponibles = async (req, res) => {
       //Saco las reservas para no mandar info innecesaria al front
       delete cancha.reserva
     })
+
+    //console.log(canchas)
 
     return res.status(200).json(canchas)
   } catch (error) {
