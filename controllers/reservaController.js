@@ -99,22 +99,6 @@ const reservarCancha = async (req, res) => {
   }
 }
 
-// Obtener reservas de un cliente en específico       //NEW
-const getReservasCliente = async (req, res) => {
-  try {
-    const { idCliente } = req.params;
-    const reservas = await reservaClient.findMany({
-      where: {
-        id_usuario: parseInt(idCliente),
-      },
-    });
-    res.json(reservas);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener las reservas del cliente' });
-  }
-};
-
 // Obtener reservas de hoy                        //NEW
 const getReservasHoy = async (req, res) => {
   try {
@@ -137,6 +121,5 @@ module.exports = {
   getReservasDelUsuario,
   reservarCancha,
   verificarReservasActivas,
-  getReservasCliente,         //NEW
   getReservasHoy              //NEW
 }
