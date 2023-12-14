@@ -1,4 +1,4 @@
-const Router = require('express').Router()
+const Router = require('express').Router();
 
 const {
   getCanchas,
@@ -7,14 +7,14 @@ const {
   deleteCancha,
   updateCancha,
   getCanchasDisponibles,
-} = require('../controllers/canchaController')
-const { authMiddleware } = require('../middlewares/authMiddleware')
+} = require('../controllers/canchaController');
+const { authMiddleware } = require('../middlewares/authMiddleware');
 const {
   verificarReservasActivas,
-} = require('../middlewares/verificarReservasActivasMiddleware')
+} = require('../middlewares/verificarReservasActivasMiddleware');
 
-//Router.get('/', getCanchas)
-Router.get('/:id', getCancha)
-Router.get('/', authMiddleware, getCanchasDisponibles)
+//Router.get("/", getCanchas);
+Router.get('/:id', getCancha);
+Router.get('/', authMiddleware, getCanchasDisponibles);
 
-module.exports = Router
+module.exports = Router;

@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer')
-const asyncHandler = require('express-async-handler')
+const nodemailer = require('nodemailer');
+const asyncHandler = require('express-async-handler');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.MAIL_ID, // generated ethereal user
     pass: process.env.MAIL_PASS, // generated ethereal password
   },
-})
+});
 
 const sendEmail = asyncHandler(async (data, req, res) => {
   // send mail with defined transport object
@@ -19,9 +19,9 @@ const sendEmail = asyncHandler(async (data, req, res) => {
     subject: data.subject, // Subject line
     text: data.text, // plain text body
     html: data.html, // html body
-  })
-})
+  });
+});
 
 module.exports = {
   sendEmail,
-}
+};
