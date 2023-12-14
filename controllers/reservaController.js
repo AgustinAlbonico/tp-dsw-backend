@@ -28,6 +28,8 @@ const getReservasDelUsuario = async (req, res) => {
   const skip = (pagina - 1) * limit;
 
   try {
+    const cantTotal = await reservaClient.count({ where: { id_usuario } });
+
     const reservas = await reservaClient.findMany({
       take: limit,
       skip,
@@ -43,7 +45,13 @@ const getReservasDelUsuario = async (req, res) => {
         { hora_turno: 'desc' },
       ],
     });
-    return res.status(200).json(reservas);
+
+    const cant = Math.ceil(cantTotal / limit);
+
+    console.log(cantTotal / limit);
+    console.log(cant);
+
+    return res.status(200).json({ reservas, cant });
   } catch (error) {
     console.log(error);
     return res.status(500).json(error);

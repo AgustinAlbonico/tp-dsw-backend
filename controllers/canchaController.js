@@ -32,6 +32,13 @@ const getCanchasDisponibles = async (req, res) => {
   const fechaFormateada = fechaAux.toISOString();
 
   try {
+    const cantTotal = await canchaClient.count({
+      where: {
+        cod_zona,
+        cod_tipo,
+      },
+    });
+
     //Traigo las canchas para un tipo, una zona y una fecha
     const canchas = await canchaClient.findMany({
       where: {
@@ -49,9 +56,7 @@ const getCanchasDisponibles = async (req, res) => {
       },
     });
 
-    console.log(canchas[0].reserva);
-
-    //Filtro por afuera de la query el dia de las reservas con el dia ingresado
+    const cant = Math.ceil(cantTotal / limit);
 
     //Creo los horarios disponibles para cada cancha y la fecha ingresada
     function generarHorarios(horaInicio, horaFin) {
@@ -127,7 +132,9 @@ const getCanchasDisponibles = async (req, res) => {
 
     //console.log(canchas)
 
-    return res.status(200).json(canchas);
+    console.log({ canchas, cant });
+
+    return res.status(200).json({ canchas, cant });
   } catch (error) {
     throw new Error(error);
   }

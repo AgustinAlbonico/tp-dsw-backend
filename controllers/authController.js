@@ -7,7 +7,7 @@ const { hashPassword, comparePasswords } = require('../utils/hashPassword');
 const { createEmailVerificationToken } = require('../utils/emailToken');
 const crypto = require('crypto');
 
-//Login user
+////Login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-//Register user
+////Register user
 const registerUser = async (req, res) => {
   let { email, password, telefono } = req.body;
   try {
@@ -97,7 +97,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-//Validar email
+////Validar email
 const validateEmail = async (req, res) => {
   const token = req.params.token;
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
@@ -120,13 +120,16 @@ const validateEmail = async (req, res) => {
   }
 };
 
-//Logout user
-const logoutUser = (req, res) => {};
+////Logout user
+const logoutUser = (req, res) => {
+  res.clearCookie('access_token');
+  res.status(200).json({ message: 'Sesion cerrada correctamente' });
+};
 
 //Update user information
 const updateUserInfo = async (req, res) => {};
 
-//
+////Forgotten password
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
   console.log(email);
