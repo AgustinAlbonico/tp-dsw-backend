@@ -11,7 +11,6 @@ const {
   verificarReservasActivas,
 } = require('../middlewares/verificarReservasActivasMiddleware')
 const { authMiddleware } = require('../middlewares/authMiddleware')
-const isAdminMiddleware = require('../middlewares/isAdminMiddleware') //New
 
 // Ruta para obtener reservas del usuario
 router.get('/', authMiddleware, getReservasDelUsuario)
@@ -20,7 +19,7 @@ router.get('/:fecha', authMiddleware, getReservasPorFecha)
 // Ruta para realizar una reserva sabiendo sus reservas activas
 router.post('/', authMiddleware, verificarReservasActivas, reservarCancha)
 // Ruta para obtener reservas de hoy
-router.get('/reservas/hoy', authMiddleware, isAdminMiddleware, getReservasHoy)    //New
+router.get('/hoy', authMiddleware, getReservasHoy)    //New
 
 //router.get('/verifica', authMiddleware, verificarReservasActivas)
 

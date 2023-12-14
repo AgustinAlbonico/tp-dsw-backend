@@ -59,7 +59,6 @@ model usuario {
   verificado       Boolean   @default(false)
   fecha_nacimiento DateTime  @db.Date
   reserva          reserva[]
-  reservas         UsuarioReserva[] 
 }
 
 model zona {

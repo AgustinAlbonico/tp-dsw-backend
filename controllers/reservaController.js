@@ -99,13 +99,13 @@ const reservarCancha = async (req, res) => {
   }
 }
 
-// Obtener reservas de hoy                        //NEW
+// Obtener reservas que se hicieron hoy                        //NEW
 const getReservasHoy = async (req, res) => {
   try {
     const today = new Date();
     const reservas = await reservaClient.findMany({
       where: {
-        fecha_turno: today.toISOString().split('T')[0],
+        fecha_hora_reserva: today.toISOString().split('T')[0],
       },
     });
     res.json(reservas);
