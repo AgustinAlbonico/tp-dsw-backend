@@ -26,17 +26,16 @@ model cancha {
 }
 
 model reserva {
-  nro_reserva        Int      @unique(map: "nro_reserva_UNIQUE") @default(autoincrement())
+  nro_reserva        Int      @id @unique(map: "nro_reserva_UNIQUE") @default(autoincrement())
   fecha_turno        DateTime @db.Date
   hora_turno         DateTime @db.Time(0)
   fecha_hora_reserva DateTime @default(now()) @db.DateTime(0)
   estado             String   @default("reservado") @db.VarChar(255)
   id_usuario         Int
   nro_cancha         Int
-  cancha             cancha   @relation(fields: [nro_cancha], references: [nro_cancha], onDelete: NoAction, onUpdate: NoAction, map: "fk_reserva_cancha")
+  cancha             cancha   @relation(fields: [nro_cancha], references: [nro_cancha], onDelete: Cascade, onUpdate: NoAction, map: "fk_reserva_cancha")
   usuario            usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_reserva_usuario")
 
-  @@id([fecha_turno, nro_cancha, hora_turno])
   @@index([nro_cancha], map: "fk_reserva_cancha_idx")
   @@index([id_usuario], map: "fk_reserva_usuario_idx")
 }

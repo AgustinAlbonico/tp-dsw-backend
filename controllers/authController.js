@@ -64,11 +64,12 @@ const registerUser = async (req, res) => {
     req.body.password = await hashPassword(password);
     let { token, hashedToken } = createEmailVerificationToken();
 
+    //Formateo la fecha para cargarla a la BD
+    const partesFecha = req.body.fecha_nacimiento.split("-");    
+    const fechaFormateada = new Date(partesFecha[0],partesFecha[1] - 1,partesFecha[2])
+    req.body.fecha_nacimiento = fechaFormateada
+
     let newUser = { ...req.body, emailtoken: hashedToken };
-
-    console.log(newUser);
-
-    newUser.fecha_nacimiento = new Date();
 
     //Creo el usuario
     let savedUser = await userClient.create({
@@ -79,7 +80,7 @@ const registerUser = async (req, res) => {
     const resetUrl = `Hola <h2>${savedUser.apellido}, ${savedUser.nombre}!</h2> <br> Usa este link para confirmar tu cuenta: <a href='http://localhost:5173/verify/${token}'>Haz click aqui!</a>`;
     const data = {
       to: email,
-      from: '"Link para confirmar tu cuenta! " <asd@example.com>',
+      from: '"Link para confirmar tu cuenta! "',
       subject: 'Link para confirmar tu cuenta!',
       text: 'Hola!',
       html: resetUrl,
@@ -127,7 +128,25 @@ const logoutUser = (req, res) => {
 };
 
 //Update user information
-const updateUserInfo = async (req, res) => {};
+const updateUserInfo = async (req, res) => {
+  const {id_usuario} = req.body;
+  try {
+    //Formateo la fecha para cargarla a la BD
+    const partesFecha = req.body.fecha_nacimiento.split("-");    
+    const fechaFormateada = new Date(partesFecha[0],partesFecha[1] - 1,partesFecha[2])
+    req.body.fecha_nacimiento = fechaFormateada
+
+    const updatedUser = await userClient.update({
+      where:{id_usuario},
+      data: req.body
+    })
+
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json(error)
+  }
+};
 
 ////Forgotten password
 const forgotPassword = async (req, res) => {
@@ -163,9 +182,9 @@ const getUsers = async (req, res) => {
 //Get user login
 const getUser = async (req, res) => {
   try {
-    res.status(200).json(req.user);
+    return res.status(200).json(req.user);
   } catch (error) {
-    res.status(500).json({ error: 'Error en el servidor' });
+    return res.status(500).json({ error: 'Error en el servidor' });
   }
 };
 
@@ -177,4 +196,5 @@ module.exports = {
   forgotPassword,
   getUsers,
   getUser,
+  updateUserInfo
 };

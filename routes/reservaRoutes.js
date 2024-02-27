@@ -11,8 +11,9 @@ const {
   verificarReservasActivas,
 } = require('../middlewares/verificarReservasActivasMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
+const { adminMiddleware } = require('../middlewares/adminMiddleware');
 
-router.get('/hoy', getReservasHoy);
+router.get('/hoy', authMiddleware, adminMiddleware, getReservasHoy);
 
 router.get('/', authMiddleware, getReservasDelUsuario);
 router.get('/:fecha', authMiddleware, getReservasPorFecha);

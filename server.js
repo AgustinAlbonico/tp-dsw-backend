@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 
+const {actualizarEstadoReservaCron } = require('./crons')
+
 require('dotenv').config()
 
 const port = process.env.PORT || 5000
@@ -30,4 +32,5 @@ app.use('/api', routes)
 
 app.listen(port, () => {
   console.log('Server corriendo en el puerto: ' + port)
+  actualizarEstadoReservaCron();
 })

@@ -1,6 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const { param } = require('../routes/reservaRoutes');
 const reservaClient = new PrismaClient().reserva;
+const prisma = new PrismaClient();
+const moment = require('moment')
 
 const getReservasPorFecha = async (req, res) => {
   const fechaParam = req.params.fecha;
@@ -40,16 +42,20 @@ const getReservasDelUsuario = async (req, res) => {
         cancha: true,
       },
       orderBy: [
-        { estado: 'desc' },
+        { estado: 'asc'},
         { fecha_turno: 'desc' },
         { hora_turno: 'desc' },
       ],
     });
 
-    const cant = Math.ceil(cantTotal / limit);
+    // const reservas = await prisma.$queryRaw`SELECT *
+    //                                     FROM reserva
+    //                                     JOIN cancha ON reserva.nro_cancha = cancha.nro_cancha
+    //                                     WHERE reserva.id_usuario = ${id_usuario}
+    //                                     ORDER BY FIELD(estado, 'reservado') DESC, estado DESC, reserva.fecha_turno DESC, reserva.hora_turno DESC
+    //                                     LIMIT ${limit} OFFSET ${skip};`
 
-    console.log(cantTotal / limit);
-    console.log(cant);
+    const cant = Math.ceil(cantTotal / limit);
 
     return res.status(200).json({ reservas, cant });
   } catch (error) {
@@ -82,10 +88,6 @@ const reservarCancha = async (req, res) => {
   const { id_usuario } = req.user;
   const datosReserva = { ...req.body, id_usuario };
 
-  console.log(datosReserva);
-
-  console.log(req.excede);
-
   //Cambio el tipo de dato de la fecha_turno
   datosReserva.fecha_turno = new Date(datosReserva.fecha_turno);
 
@@ -102,7 +104,19 @@ const reservarCancha = async (req, res) => {
   datosReserva.hora_turno = generoHoraTurno(datosReserva.hora_turno);
 
   try {
-    const reserva = await reservaClient.createMany({
+    
+    //Verificio que el usuario no tenga otro turno en la hora ingresada
+    const reservaHoraIngresada = await reservaClient.findFirst({
+      where :{
+        id_usuario,
+        estado: 'reservado',
+        hora_turno: datosReserva.hora_turno
+      }
+    })
+
+    if(reservaHoraIngresada) return res.status(401).json({message: 'Usted ya posee otro turno al mismo horario!'})
+
+    const reserva = await reservaClient.create({
       data: datosReserva,
     });
 
@@ -114,21 +128,43 @@ const reservarCancha = async (req, res) => {
 };
 
 const getReservasHoy = async (req, res) => {
-  let today = new Date();
-  today.setHours(0, 0, 0, 0);
-  let tomorrow = today;
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  console.log(today);
-  console.log(tomorrow);
-  try {
-    const reservasHoy = await reservaClient.findMany({
+  const { page } = req.query;
+
+  const limit = 5;
+  let pagina = parseInt(page) ? parseInt(page) : 1;
+  const skip = (pagina - 1) * limit;
+
+  try{
+    let today = moment()
+    let todayFormated = today.format('YYYY-MM-DD')
+    let todayFormatedFinal = new Date(todayFormated).toISOString()
+
+    const cantReservas = await reservaClient.count({where:{
+      fecha_turno: todayFormatedFinal
+    }})
+
+
+    const reservas = await reservaClient.findMany({
+      take: limit,
+      skip,
       where: {
-        fecha_hora_reserva: { gte: today },
+        fecha_turno: todayFormatedFinal,
       },
+      include: {
+        cancha: true,
+      },
+      orderBy: [
+        { estado: 'desc'},
+        { fecha_turno: 'desc' },
+        { hora_turno: 'desc' },
+      ],
     });
-    console.log(reservasHoy);
+
+    const cant = Math.ceil(cantReservas / limit);
+
+    return res.status(200).json({ reservas , cant });
   } catch (error) {
-    console.log(error);
+    console.log(error)
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 };
