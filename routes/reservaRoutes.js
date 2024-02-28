@@ -19,7 +19,7 @@ router.get('/:fecha', authMiddleware, getReservasPorFecha)
 // Ruta para realizar una reserva sabiendo sus reservas activas
 router.post('/', authMiddleware, verificarReservasActivas, reservarCancha)
 // Ruta para obtener reservas de hoy
-router.get('/hoy', authMiddleware, getReservasHoy)    //New
+router.get('d/hoy', authMiddleware, getReservasHoy)    //New
 
 //router.get('/verifica', authMiddleware, verificarReservasActivas)
 
