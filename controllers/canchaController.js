@@ -3,7 +3,7 @@ const canchaClient = new PrismaClient().cancha
 const moment = require('moment')
 
 const getCanchas = async (req, res) => {
-  let {page} = req.query
+  let { page } = req.query
 
   const limit = 2
   let pagina = parseInt(page) ? parseInt(page) : 1
@@ -22,7 +22,7 @@ const getCanchas = async (req, res) => {
 
     const cantPaginas = Math.ceil(cantTotal / limit)
 
-    return res.status(200).json({canchas, cantPaginas})
+    return res.status(200).json({ canchas, cantPaginas })
   } catch (error) {
     throw new Error(error)
   }
@@ -82,10 +82,12 @@ const getCanchasDisponibles = async (req, res) => {
       const [finHora, finMinuto] = horaFin.split(':')
 
       // Convierte las horas y minutos a números
-      const horaInicioNum = parseInt(inicioHora, 10)
-      const horaFinNum = parseInt(finHora, 10)
+      let horaInicioNum = parseInt(inicioHora, 10)
+      let horaFinNum = parseInt(finHora, 10)
 
-      let horaActual
+      if(horaFinNum === 0) horaFinNum = 24;
+
+      let horaActual;
       //Si la fecha de reserva es la misma que la del dia de hoy, no muestro los horarios de los turnos que ya pasaron
       if (fecha_reserva === fecha_hoy) {
         //Inicializa la hora con la proxima hora
@@ -94,25 +96,29 @@ const getCanchasDisponibles = async (req, res) => {
         // Inicializa la hora con la hora de inicio
         horaActual = horaInicioNum
       }
+
+      let aux;
+      if(horaActual < horaInicioNum) aux = horaInicioNum; else aux = horaActual;
+
       // Agrega horarios al array hasta que alcancemos la hora de fin
-      while (horaActual < horaFinNum) {
-        // Formatea la hora actual con dos dígitos y añade al array
-        const horaFormateada = horaActual.toString().padStart(2, '0')
-        horarios.push(`${horaFormateada}:${inicioMinuto}`)
+      while (aux < horaFinNum) {
+          // Formatea la hora actual con dos dígitos y añade al array
+          const horaFormateada = aux.toString().padStart(2, '0')
+          horarios.push(`${horaFormateada}:${inicioMinuto}`)
 
-        // Incrementa la hora actual en una hora
-        horaActual++
+          // Incrementa la hora actual en una hora
+          aux++ 
 
-        // Si la hora actual llega a 24, reinicializa a 0 para manejar el cambio de día
-        if (horaActual === 24) {
-          horaActual = 0
-        }
+          // Si la hora actual llega a 24, reinicializa a 0 para manejar el cambio de día
+          if (aux === 24 && horaFinNum !== 24) {
+            aux = 0
+          }    
       }
 
       // Agrega la última hora (horaFin) al array
       horarios.push(horaFin)
 
-      if(hora_ahora === horarios[horarios.length - 1].split(':')[0]){
+      if (hora_ahora === horarios[horarios.length - 1].split(':')[0]) {
         horarios.pop()
       }
 
@@ -151,11 +157,9 @@ const getCanchasDisponibles = async (req, res) => {
         (item) => !horariosOcupados.includes(item)
       )
 
-      //Saco las reservas para no mandar info innecesaria al front
-      delete cancha.reserva
+      // //Saco las reservas para no mandar info innecesaria al front
+      // delete cancha.reserva
     })
-
-    console.log(canchas)
 
     return res.status(200).json({ canchas, cant })
   } catch (error) {
@@ -197,12 +201,12 @@ const createCancha = async (req, res) => {
   cod_tipo = Number(cod_tipo)
   costo_por_turno = parseFloat(costo_por_turno)
   nro_calle = Number(nro_calle)
-  
+
   const dateTimeStringApertura = `1970-01-01T${horario_apertura}:00`
   const dateTimeStringCierre = `1970-01-01T${horario_cierre}:00`
-  
-  horario_apertura = (new Date(dateTimeStringApertura)).toISOString();
-  horario_cierre = (new Date(dateTimeStringCierre)).toISOString();
+
+  horario_apertura = new Date(dateTimeStringApertura).toISOString()
+  horario_cierre = new Date(dateTimeStringCierre).toISOString()
 
   try {
     const cancha = await canchaClient.create({
